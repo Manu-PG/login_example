@@ -12,26 +12,15 @@ Content-Type: application/json
 ###
 POST http://localhost:3000/user/login
 Content-Type: application/json
-
-{
-  "username": "user@test.com",
-  "password": "pass123"
-}
+Authorization: Basic user@test.com:pass123
 
 ###
 GET http://localhost:3000/user/logout
-
-POST http://localhost:3000/user/verify_password
-Content-Type: application/json
-
-{
-  "password": "pass123"
-}
 
 ###
 DELETE http://localhost:3000/user/remove
 Content-Type: application/json
 
 {
-  "username": "user@test.com"
+  "id": "664b8c361b5eed69d1cbd12b"
 }

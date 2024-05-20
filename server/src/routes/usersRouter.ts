@@ -1,13 +1,14 @@
 import { Router } from 'express';
-import { checkPassword, createUser, deleteUser, getUser, loginUser } from '../controllers/usersController';
+import { createUser, deleteUser, getUser, loginUser, logoutUser } from '../controllers/usersController';
+import { isAuthenticated } from '../middlewares/authentication';
 
 const userRouter = Router();
 
-userRouter.get('/me', getUser);
 userRouter.post('/register', createUser);
 userRouter.post('/login', loginUser);
-userRouter.post('/verify_password', checkPassword);
-userRouter.get('/logout', loginUser);
-userRouter.delete('/remove', deleteUser);
+userRouter.get('/logout', logoutUser);
+
+userRouter.get('/me', isAuthenticated, getUser);
+userRouter.delete('/remove', isAuthenticated, deleteUser);
 
 export default userRouter;

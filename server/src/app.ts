@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import { configDotenv } from 'dotenv';
 import express, { Request, Response } from 'express';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import userRouter from './routes/usersRouter';
 
@@ -19,9 +20,10 @@ main().catch((e) => console.log(e));
 
 // Express Middlewares
 app.use(helmet());
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 //app.use(express.urlencoded({ limit: '25mb', extended: true }));
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
 app.use('/user', userRouter);
