@@ -4,6 +4,7 @@ import Input from "../../components/ui/Input";
 import Checkbox from "../../components/ui/Checkbox";
 import Button from "../../components/ui/Button";
 import Link from "../../components/ui/Link";
+import { postLogin } from "../../api/user";
 
 const LoginPage = () => {
   const [email, setEmail] = useState<string>("");
@@ -11,7 +12,11 @@ const LoginPage = () => {
   const [isRemeberCheched, setIsRememberChecked] = useState<boolean>(false);
 
   const submit = () => {
-    console.log(`Email: ${email} Password: ${password} Remember me: ${isRemeberCheched}`);
+    const userInfo = {
+      userName: email,
+      password: password,
+    } as userLogin;
+    postLogin(userInfo).then((data) => console.log(data));
   };
 
   return (

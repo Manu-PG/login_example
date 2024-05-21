@@ -1,23 +1,32 @@
-import axios from "axios";
-
-const URL = "http://localhost:3000";
+import api from "./apiConection";
 
 export const postLogin = (user: userLogin) => {
-  return axios.post<string>(`${URL}/login`, user);
+  return api
+    .post<userLogin>(
+      "/user/login",
+      {},
+      {
+        auth: {
+          username: user.userName,
+          password: user.password,
+        },
+      }
+    )
+    .then(({ data }) => data);
 };
 
 export const getLogout = () => {
-  return axios.get<string>(`${URL}/logout`);
+  return api.get<string>(`${URL}/user/logout`);
 };
 
 export const postCreateUser = (user: userLogin) => {
-  return axios.post<string>(`${URL}/register`, user);
+  return api.post<string>(`${URL}/user/register`, user);
 };
 
 export const getUser = () => {
-  return axios.get<string>(`${URL}/me`);
+  return api.get<string>(`${URL}/user/me`);
 };
 
 /*export const deleteUser = (user: userLogin) => {
-  return axios.delete<string>(`${URL}/remove`, user);
+  return api.delete<string>(`${URL}/remove`, user);
 }*/
