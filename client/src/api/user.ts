@@ -20,7 +20,7 @@ export const getLogout = () => {
 };
 
 export const postCreateUser = (user: userLogin) => {
-  return api.post<string>(`${URL}/user/register`, user);
+  return api.post<userLogin>(`${URL}/user/register`, user);
 };
 
 export const getUser = () => {
