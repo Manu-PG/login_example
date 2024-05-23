@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { createUser, deleteUser, getUser, loginUser, logoutUser } from '../controllers/usersController';
-import { isAuthenticated } from '../middlewares/authentication';
+import { isAuthenticated, setCredentials } from '../middlewares/authentication';
 
 const userRouter = Router();
 
-userRouter.post('/register', createUser);
-userRouter.post('/login', loginUser);
+userRouter.post('/register', setCredentials, createUser);
+userRouter.post('/login', setCredentials, loginUser);
 userRouter.get('/logout', logoutUser);
 
 userRouter.get('/me', isAuthenticated, getUser);

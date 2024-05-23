@@ -5,6 +5,8 @@ import express, { Request, Response } from 'express';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import userRouter from './routes/usersRouter';
+import { errorHandler } from './middlewares/errorHandler';
+import { logger } from './middlewares/logger';
 
 configDotenv();
 const PORT = process.env.PORT;
@@ -26,12 +28,16 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Routes
+app.use(logger);
 app.use('/user', userRouter);
 
-// erver Health Check
+// Server Health Check
 app.get('/health-check', (req: Request, res: Response) => {
   res.status(200).json({ message: 'Server is up and running!' });
 });
+
+// Error Handler
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
