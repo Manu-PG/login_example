@@ -1,12 +1,10 @@
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { TimeStamps, User } from './interfaces';
+import { TimeStamps, User } from '../config/@types/global';
 
 export interface UserDocument extends User, TimeStamps, mongoose.Document {
   isValidPassword: (newPassword: string) => Promise<boolean>;
 }
-
-const Schema = mongoose.Schema;
 
 const userSchema = new Schema<UserDocument, Model<UserDocument>>(
   {
@@ -24,7 +22,7 @@ const userSchema = new Schema<UserDocument, Model<UserDocument>>(
       minlength: 5,
       maxlength: 100,
     },
-    rol: {
+    role: {
       type: String,
       enum: ['user', 'admin'],
       default: 'user',

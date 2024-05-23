@@ -1,63 +1,63 @@
-import { Request, Response } from 'express';
-import userModel, { UserDocument } from '../models/usersModel';
-import jwt from 'jsonwebtoken';
-import { UserJSON } from '../models/interfaces';
+import { NextFunction, Request, Response } from 'express';
+import userModel from '../models/usersModel';
+import { sendAccessToken } from './userUtils';
+import { MongoServerError } from 'mongodb';
+import {
+  GenericUnauthorizedError,
+  IncorrectPasswordError,
+  UserNotFoundError,
+  UsernameCollisionError,
+} from '../errors/errorTypes';
 
-export const getUser = (req: Request, res: Response) => {
+export const getUser = (req: Request, res: Response, next: NextFunction) => {
   userModel
-    .findOne({ _id: res.locals.user.id })
+    .findOne({ _id: req.user?.id })
     .then((data) => res.json(data))
-    .catch((error) => res.status(500).json({ error: (error as Error).message }));
+    .catch((error) => next(error));
 };
 
-const getAccessToken = (user: UserDocument, res: Response) => {
-  const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET as string, {
-    expiresIn: '30m',
-  });
-
-  res.cookie('access_token', token, { httpOnly: true }).send(user);
-};
-
-export const createUser = async (req: Request, res: Response) => {
+export const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { username, password } = req.body;
+    const { username, password } = req.credentials ? req.credentials : { username: '', password: '' };
     const user = await userModel.create({ username, password });
-    getAccessToken(user, res);
+    sendAccessToken(user, res);
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message });
+    if (error instanceof MongoServerError && (error as MongoServerError).code === 11000) {
+      return next(new UsernameCollisionError({ error, context: { message: (error as MongoServerError).message } }));
+    }
+    next(error);
   }
 };
 
-export const loginUser = async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
-    const [username, password] = Buffer.from(b64auth, 'base64').toString().split(':');
+    const { username, password } = req.credentials ? req.credentials : { username: '', password: '' };
 
     const user = await userModel.findOne({ username });
-    if (!user) return res.status(404).json({ error: 'User not found!' });
-    if (!(await user.isValidPassword(password))) return res.status(401).json({ error: 'Incorrect Password!' });
+    if (!user) return next(new UserNotFoundError());
+    if (!(await user.isValidPassword(password))) return next(new IncorrectPasswordError());
 
-    getAccessToken(user, res);
+    sendAccessToken(user, res);
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message });
+    next(error);
   }
 };
 
-export const deleteUser = (req: Request, res: Response) => {
+export const deleteUser = (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.body;
 
-  const user: UserJSON = res.locals.user;
-  if (user.id !== id && user.rol !== 'admin') return res.status(401).json({ error: 'Unauthorized' });
+  const user = req.user;
+  if (!user || (user.id !== id && user.role !== 'admin')) return next(new GenericUnauthorizedError());
 
   userModel
     .deleteOne({ _id: id })
     .then((data) => {
       if (user.id === id) logoutUser(req, res);
-      else if (user.rol !== 'admin') res.json(data);
+      else if (user.role !== 'admin') res.json(data);
     })
-    .catch((error) => res.status(500).json({ error: (error as Error).message }));
+    .catch((error) => next(error));
 };
 
 export const logoutUser = (req: Request, res: Response) => {
-  res.clearCookie('access_token').send('logout');
+  res.clearCookie('access_token').json({ message: 'logout' });
 };
