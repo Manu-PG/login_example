@@ -1,21 +1,58 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { UserContext } from ".";
-import { getLogout, postLogin } from "../../../api/user";
+import { getLogout, getUser, postLogin, postCreateUser } from "../../../api/user";
 
-export const useUSer = () => {
+type RequestStatus = "idle" | "loading" | "done";
+
+export const useUser = () => {
   const { user, setUser } = useContext(UserContext);
+  const [requestStatus, setRequestStatus] = useState<RequestStatus>("idle");
 
   const logoutUser = () => {
-    getLogout().then((msg) => {
-      if (msg.data === "logout") {
-        setUser(undefined);
-      }
-    });
+    setRequestStatus("loading");
+    getLogout()
+      .then((msg) => {
+        if (msg.data === "logout") {
+          setRequestStatus("done");
+          setUser(undefined);
+        }
+      })
+      .catch((error) => console.log(error));
   };
 
   const loginUser = (user: userLogin) => {
-    postLogin(user).then((data) => setUser(data));
+    setRequestStatus("loading");
+    postLogin(user)
+      .then((data) => {
+        setRequestStatus("done");
+        setUser(data);
+      })
+      .catch((error) => console.log(error));
   };
 
-  return { user, loginUser, logoutUser };
+  const checkMe = () => {
+    setRequestStatus("loading");
+    getUser()
+      .then((data) => {
+        setRequestStatus("done");
+        setUser(data);
+      })
+      .catch((error) => {
+        console.log(error);
+        setRequestStatus("done");
+        setUser(undefined);
+      });
+  };
+
+  const registerUser = (user: userLogin) => {
+    setRequestStatus("loading");
+    postCreateUser(user)
+      .then((data) => {
+        setRequestStatus("done");
+        setUser(data);
+      })
+      .catch((error) => console.log(error));
+  };
+
+  return { user, requestStatus, loginUser, logoutUser, checkMe, registerUser };
 };

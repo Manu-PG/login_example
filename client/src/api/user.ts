@@ -1,32 +1,21 @@
 import api from "./apiConection";
 
-export const postLogin = (user: userLogin) => {
-  return api
-    .post<userLogin>(
-      "/user/login",
-      {},
-      {
-        auth: {
-          username: user.userName,
-          password: user.password,
-        },
-      }
-    )
-    .then(({ data }) => data);
+export const postLogin = ({ username, password }: userLogin) => {
+  return api.post<userLogin>("/user/login", {}, { auth: { username, password } }).then(({ data }) => data);
 };
 
 export const getLogout = () => {
-  return api.get<string>(`${URL}/user/logout`);
+  return api.get<string>(`/user/logout`);
 };
 
-export const postCreateUser = (user: userLogin) => {
-  return api.post<userLogin>(`${URL}/user/register`, user);
+export const postCreateUser = ({ username, password }: userLogin) => {
+  return api.post<userLogin>("/user/register", {}, { auth: { username, password } }).then(({ data }) => data);
 };
 
 export const getUser = () => {
-  return api.get<string>(`${URL}/user/me`);
+  return api.get<userLogin>(`/user/me`).then(({ data }) => data);
 };
 
 /*export const deleteUser = (user: userLogin) => {
-  return api.delete<string>(`${URL}/remove`, user);
+  return api.delete<string>(`/remove`, user);
 }*/

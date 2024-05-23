@@ -7,11 +7,16 @@ import ErrorPage from "../pages/ErrorPage";
 import LoginPage from "../pages/LoginPage";
 import LandingPage from "../pages/LadingPage";
 import RegisterPage from "../pages/RegisterPage";
+import ProtectedPage from "../pages/ProtectedPage";
 
 const routes: RouteObject[] = [
   {
     path: "/",
-    element: <LandingPage />,
+    element: (
+      <ProtectedPage>
+        <LandingPage />
+      </ProtectedPage>
+    ),
     errorElement: <ErrorPage />,
   },
   {

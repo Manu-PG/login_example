@@ -2,14 +2,14 @@ import { Button as ButtonMui } from "@mui/material";
 
 type ButtonProps = {
   type: "button" | "reset" | "submit" | undefined;
-  value: string;
+  children: React.ReactNode;
   click: React.MouseEventHandler<HTMLButtonElement>;
 };
 
-const Button = ({ type, value, click }: ButtonProps) => {
+const Button = ({ type, children, click }: ButtonProps) => {
   return (
     <ButtonMui type={type} fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} onClick={click}>
-      {value}
+      {children}
     </ButtonMui>
   );
 };

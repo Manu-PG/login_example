@@ -1,23 +1,33 @@
 import { FormFooter, LoginContainer, LoginForm } from "./LoginPage.styled";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "../../components/ui/Input";
 import Checkbox from "../../components/ui/Checkbox";
 import Button from "../../components/ui/Button";
 import Link from "../../components/ui/Link";
-import { postLogin } from "../../api/user";
+import { useUser } from "../../providers/UserProvider/UserContext/useUser";
+import { useNavigate } from "react-router-dom";
+import Spinner from "../../assets/svg/spinner";
 
 const LoginPage = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isRemeberCheched, setIsRememberChecked] = useState<boolean>(false);
+  const { user, requestStatus, loginUser } = useUser();
+  const navigate = useNavigate();
+
+  console.log(user);
 
   const submit = () => {
-    const userInfo = {
-      userName: email,
+    const user = {
+      username: email,
       password: password,
     } as userLogin;
-    postLogin(userInfo).then((data) => console.log(data));
+    loginUser(user);
   };
+
+  useEffect(() => {
+    if (user !== undefined) navigate("/");
+  }, [user]);
 
   return (
     <LoginContainer>
@@ -40,10 +50,11 @@ const LoginPage = () => {
           checked={isRemeberCheched}
           onChange={({ target }) => setIsRememberChecked(target.checked)}
         />
-        <Button type="button" value="Sign in" click={submit} />
+        <Button type="button" click={submit}>
+          {requestStatus === "loading" ? <Spinner size={35} /> : "Sign in"}
+        </Button>
         <FormFooter>
-          <Link href="#" label="Forgot password?" />
-          <Link href="#" label="Don't have an account? Sign Up" />
+          <Link href="/register" label="Don't have an account? Sign Up" />
         </FormFooter>
       </LoginForm>
     </LoginContainer>

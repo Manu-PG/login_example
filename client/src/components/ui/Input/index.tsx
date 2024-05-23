@@ -5,10 +5,11 @@ type InputProps = {
   value: string;
   inputName: string;
   type?: React.HTMLInputTypeAttribute;
+  error?: boolean;
   changeEvent: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
 };
 
-const Input = ({ label, value, inputName, type, changeEvent }: InputProps) => {
+const Input = ({ label, value, inputName, type, error, changeEvent }: InputProps) => {
   return (
     <TextField
       margin="normal"
@@ -20,6 +21,7 @@ const Input = ({ label, value, inputName, type, changeEvent }: InputProps) => {
       value={value}
       onChange={changeEvent}
       type={type}
+      error={error}
     />
   );
 };
