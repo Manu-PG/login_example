@@ -1,33 +1,32 @@
-import { FormFooter, LoginContainer, LoginForm } from "./LoginPage.styled";
-import { useEffect, useState } from "react";
+import { ErrorMessage, FormFooter, LoginContainer, LoginForm } from "./LoginPage.styled";
+import { useState } from "react";
 import Input from "../../components/ui/Input";
 import Checkbox from "../../components/ui/Checkbox";
 import Button from "../../components/ui/Button";
 import Link from "../../components/ui/Link";
-import { useUser } from "../../providers/UserProvider/UserContext/useUser";
+
 import { useNavigate } from "react-router-dom";
 import Spinner from "../../assets/svg/spinner";
+import { useLogin } from "../../providers/UserProvider/UserContext/useLogin";
 
 const LoginPage = () => {
+  const { requestStatus, loginUser } = useLogin();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isRemeberCheched, setIsRememberChecked] = useState<boolean>(false);
-  const { user, requestStatus, loginUser } = useUser();
-  const navigate = useNavigate();
-
-  console.log(user);
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   const submit = () => {
     const user = {
       username: email,
       password: password,
     } as userLogin;
-    loginUser(user);
+    loginUser(user)
+      .then(() => navigate("/"))
+      .catch((error) => setErrorMessage(error.message));
   };
-
-  useEffect(() => {
-    if (user !== undefined) navigate("/");
-  }, [user]);
 
   return (
     <LoginContainer>
@@ -50,6 +49,7 @@ const LoginPage = () => {
           checked={isRemeberCheched}
           onChange={({ target }) => setIsRememberChecked(target.checked)}
         />
+        {requestStatus === "error" ? <ErrorMessage>{errorMessage}</ErrorMessage> : null}
         <Button type="button" click={submit}>
           {requestStatus === "loading" ? <Spinner size={35} /> : "Sign in"}
         </Button>

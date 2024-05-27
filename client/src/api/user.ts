@@ -15,7 +15,3 @@ export const postCreateUser = ({ username, password }: userLogin) => {
 export const getUser = () => {
   return api.get<userLogin>(`/user/me`).then(({ data }) => data);
 };
-
-/*export const deleteUser = (user: userLogin) => {
-  return api.delete<string>(`/remove`, user);
-}*/

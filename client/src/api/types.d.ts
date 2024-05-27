@@ -5,3 +5,5 @@ declare type userLogin = {
   role?: "user" | "admin";
   isRememberChecked?: boolean;
 };
+
+declare type RequestStatus = "idle" | "loading" | "done" | "error";
