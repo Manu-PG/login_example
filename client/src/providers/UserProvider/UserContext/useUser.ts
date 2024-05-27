@@ -1,58 +1,35 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from ".";
-import { getLogout, getUser, postLogin, postCreateUser } from "../../../api/user";
+import { getUser } from "../../../api/user";
+import { AxiosError } from "axios";
 
-type RequestStatus = "idle" | "loading" | "done";
+type errorType = "NONE" | "GENERIC" | "NOT_LOGGED";
 
 export const useUser = () => {
   const { user, setUser } = useContext(UserContext);
   const [requestStatus, setRequestStatus] = useState<RequestStatus>("idle");
+  const [errorType, setErrorType] = useState<errorType>("NONE");
 
-  const logoutUser = () => {
+  const initialUserCheck = async () => {
     setRequestStatus("loading");
-    getLogout()
-      .then((msg) => {
-        if (msg.data === "logout") {
-          setRequestStatus("done");
-          setUser(undefined);
-        }
-      })
-      .catch((error) => console.log(error));
+
+    try {
+      if (!user) {
+        const newUser = await getUser();
+        setUser(newUser);
+      }
+      setRequestStatus("done");
+    } catch (error) {
+      setRequestStatus("error");
+
+      if (error instanceof AxiosError && error.response?.status === 401) setErrorType("NOT_LOGGED");
+      else setErrorType("GENERIC");
+    }
   };
 
-  const loginUser = (user: userLogin) => {
-    setRequestStatus("loading");
-    postLogin(user)
-      .then((data) => {
-        setRequestStatus("done");
-        setUser(data);
-      })
-      .catch((error) => console.log(error));
-  };
+  useEffect(() => {
+    initialUserCheck();
+  }, []);
 
-  const checkMe = () => {
-    setRequestStatus("loading");
-    getUser()
-      .then((data) => {
-        setRequestStatus("done");
-        setUser(data);
-      })
-      .catch((error) => {
-        console.log(error);
-        setRequestStatus("done");
-        setUser(undefined);
-      });
-  };
-
-  const registerUser = (user: userLogin) => {
-    setRequestStatus("loading");
-    postCreateUser(user)
-      .then((data) => {
-        setRequestStatus("done");
-        setUser(data);
-      })
-      .catch((error) => console.log(error));
-  };
-
-  return { user, requestStatus, loginUser, logoutUser, checkMe, registerUser };
+  return { user, requestStatus, errorType };
 };

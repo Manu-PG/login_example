@@ -22,3 +22,9 @@ export const FormFooter = styled.div`
   display: flex;
   justify-content: space-between;
 `;
+
+export const ErrorMessage = styled.h5`
+  margin: 0px;
+  padding: 0px;
+  color: red;
+`;
